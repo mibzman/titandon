@@ -1,0 +1,6 @@
+{{define "Toot"}}
+## {{.DisplayName}}
+=> /toot/{{.ID}} {{.Account}} {{.CreatedAt}}
+{{if .SpoilerText}}{{.SpoilerText}}{{end}}
+{{.Content}}
+{{end}}
