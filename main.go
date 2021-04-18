@@ -10,7 +10,7 @@ func main() {
 
 	setupMastodon()
 
-	server := titan.GenerateServer()
+	server := titan.Startup()
 
 	createPages(server)
 

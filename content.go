@@ -4,7 +4,7 @@ import (
 	"github.com/mibzman/titan"
 )
 
-func createPages(server titan.Server) {
+func createPages(server titan.Booster) {
 	server.AddPage("/timeline", "timeline.ttn", timelineHandler)
 	server.AddPage("/timeline/{ID}", "timeline.ttn", timelineHandler)
 	server.AddPage("/toot/{ID}", "toot.ttn", tootHandler)
