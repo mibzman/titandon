@@ -1,6 +1,13 @@
 => /timeline Home
+=> /timeline/{{.TimelineID}} Return to timeline after this toot
 {{range .Ancestors}}{{template "Toot" .}}{{end}}
-{{template "Toot" .}}
+{{if .Booster}}## {{.Booster}} boosted {{.DisplayName}}{{else}}## {{.DisplayName}}{{end}}
+=> /account/{{.Account}} {{.Account}}
+=> /toot/{{.ID}} {{.CreatedAt}}{{if .SpoilerText}}
+[{{.SpoilerText}}]{{end}}
+
+{{.Content}}{{range .MediaAttachments}}
+=> {{.URL}} Image: {{.Description}}{{end}}
 {{.Status.RepliesCount}} Replies {{.Status.ReblogsCount}} Boosts {{.Status.FavouritesCount}} Favs 
 => /reply/{{.ID}} Reply
 => /boost/{{.ID}} Boost

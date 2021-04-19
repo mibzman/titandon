@@ -1,6 +1,6 @@
 # Mastodon
+=> /timeline Home
 => /toot Draft Toot
-
 {{range .Statuses}}{{template "Toot" .}}{{end}}
 
 => /timeline/{{.LastID}} Next Page

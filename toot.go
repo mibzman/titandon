@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"log"
+	"strings"
 
 	"github.com/LukeEmmet/html2gemini"
 	"github.com/andanhm/go-prettytime"
@@ -10,43 +11,48 @@ import (
 )
 
 type StatusViewModel struct {
-	ID          mastodon.ID
-	DisplayName string
-	Account     string
-	CreatedAt   string
-	SpoilerText string
-	Content     string
-	Status      *mastodon.Status
-	Ancestors   []StatusViewModel
-	Descendants []StatusViewModel
-	IsBoost     bool
-	Booster     string
+	ID               mastodon.ID
+	TimelineID       mastodon.ID
+	DisplayName      string
+	Account          string
+	CreatedAt        string
+	SpoilerText      string
+	Content          string
+	Status           *mastodon.Status
+	Ancestors        []StatusViewModel
+	Descendants      []StatusViewModel
+	IsBoost          bool
+	Booster          string
+	MediaAttachments []MediaViewModel
 }
 
-func createStatusVM(status *mastodon.Status) StatusViewModel {
+type MediaViewModel struct {
+	URL         string
+	Description string
+}
+
+func tootToGmi(content string) string {
 	ctx := html2gemini.NewTraverseContext(*html2gemini.NewOptions())
-	text, err := html2gemini.FromString(status.Content, *ctx)
+	text, err := html2gemini.FromString(content, *ctx)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	if status.Reblog != nil {
-		return StatusViewModel{
-			status.Reblog.ID,
-			status.Reblog.Account.DisplayName,
-			status.Reblog.Account.Acct,
-			prettytime.Format(status.Reblog.CreatedAt),
-			status.Reblog.SpoilerText,
-			text,
-			status.Reblog,
-			[]StatusViewModel{},
-			[]StatusViewModel{},
-			true,
-			status.Account.DisplayName,
-		}
-	}
+	return strings.Replace(text, "\n#", "\n #", -1)
+}
 
-	return StatusViewModel{
+func createAttachmentVMs(attachments []mastodon.Attachment) (result []MediaViewModel) {
+	for _, attach := range attachments {
+		result = append(result, MediaViewModel{attach.RemoteURL, attach.Description})
+	}
+	return
+}
+
+func createStatusVM(status *mastodon.Status) StatusViewModel {
+	text := tootToGmi(status.Content)
+
+	vm := StatusViewModel{
+		status.ID,
 		status.ID,
 		status.Account.DisplayName,
 		status.Account.Acct,
@@ -58,7 +64,21 @@ func createStatusVM(status *mastodon.Status) StatusViewModel {
 		[]StatusViewModel{},
 		false,
 		"",
+		createAttachmentVMs(status.MediaAttachments),
 	}
+
+	if status.Reblog != nil {
+		vm.ID = status.Reblog.ID
+		vm.DisplayName = status.Reblog.Account.DisplayName
+		vm.Account = status.Reblog.Account.Acct
+		vm.CreatedAt = prettytime.Format(status.Reblog.CreatedAt)
+		vm.Status = status.Reblog
+		vm.IsBoost = true
+		vm.Booster = status.Account.DisplayName
+		vm.MediaAttachments = createAttachmentVMs(status.Reblog.MediaAttachments)
+	}
+
+	return vm
 }
 
 func (status *StatusViewModel) PopulateThread() {
