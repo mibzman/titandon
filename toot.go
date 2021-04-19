@@ -19,6 +19,8 @@ type StatusViewModel struct {
 	Status      *mastodon.Status
 	Ancestors   []StatusViewModel
 	Descendants []StatusViewModel
+	IsBoost     bool
+	Booster     string
 }
 
 func createStatusVM(status *mastodon.Status) StatusViewModel {
@@ -26,6 +28,22 @@ func createStatusVM(status *mastodon.Status) StatusViewModel {
 	text, err := html2gemini.FromString(status.Content, *ctx)
 	if err != nil {
 		log.Fatal(err)
+	}
+
+	if status.Reblog != nil {
+		return StatusViewModel{
+			status.Reblog.ID,
+			status.Reblog.Account.DisplayName,
+			status.Reblog.Account.Acct,
+			prettytime.Format(status.Reblog.CreatedAt),
+			status.Reblog.SpoilerText,
+			text,
+			status.Reblog,
+			[]StatusViewModel{},
+			[]StatusViewModel{},
+			true,
+			status.Account.DisplayName,
+		}
 	}
 
 	return StatusViewModel{
@@ -38,6 +56,8 @@ func createStatusVM(status *mastodon.Status) StatusViewModel {
 		status,
 		[]StatusViewModel{},
 		[]StatusViewModel{},
+		false,
+		"",
 	}
 }
 

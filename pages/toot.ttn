@@ -1,7 +1,7 @@
 => /timeline Home
 {{range .Ancestors}}{{template "Toot" .}}{{end}}
 {{template "Toot" .}}
-{{.Status.RepliesCount}} Replies {{.Status.ReblogsCount}} Reblogs {{.Status.FavouritesCount}} Favourites 
+{{.Status.RepliesCount}} Replies {{.Status.ReblogsCount}} Boosts {{.Status.FavouritesCount}} Favs 
 => /reply/{{.ID}} Reply
 => /boost/{{.ID}} Boost
 => /fav/{{.ID}} Favorite

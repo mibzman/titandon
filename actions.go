@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"log"
 
 	"github.com/a-h/gemini"
 	"github.com/mattn/go-mastodon"
@@ -31,14 +32,20 @@ func replyTootHandler(w gemini.ResponseWriter, r *gemini.Request) {
 
 func boostTootHandler(w gemini.ResponseWriter, r *gemini.Request) {
 	ID := titan.GetVar(r, "ID")
-
-	mastodonClient.Reblog(context.Background(), mastodon.ID(ID))
+	_, err := mastodonClient.Reblog(context.Background(), mastodon.ID(ID))
+	if err != nil {
+		log.Fatal("error:", err)
+	}
 	w.SetHeader(gemini.CodeRedirect, "/toot/"+ID)
 }
 
 func favTootHandler(w gemini.ResponseWriter, r *gemini.Request) {
 	ID := titan.GetVar(r, "ID")
 
-	mastodonClient.Favourite(context.Background(), mastodon.ID(ID))
+	_, err := mastodonClient.Favourite(context.Background(), mastodon.ID(ID))
+	if err != nil {
+		log.Fatal("error:", err)
+	}
+
 	w.SetHeader(gemini.CodeRedirect, "/toot/"+ID)
 }

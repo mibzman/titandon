@@ -1,5 +1,6 @@
 {{define "Toot"}}
-## {{.DisplayName}}
+{{if .Booster}}## {{.Booster}} boosted
+## {{.DisplayName}}{{else}}## {{.DisplayName}}{{end}}
 => /toot/{{.ID}} {{.Account}} {{.CreatedAt}}
 {{if .SpoilerText}}{{.SpoilerText}}{{end}}
 {{.Content}}
